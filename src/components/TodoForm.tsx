@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useCreateTodo } from "../hooks/useTodos";
+import { useAuth } from "../hooks/useAuth";
 
 interface TodoFormProps {
   onSuccess?: () => void;
@@ -11,12 +12,13 @@ export default function TodoForm({ onSuccess }: TodoFormProps) {
     description: ""
   });
 
+  const { user } = useAuth();
   const createTodoMutation = useCreateTodo();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title.trim()) {
+    if (!formData.title.trim() || !user) {
       return;
     }
 
@@ -24,7 +26,8 @@ export default function TodoForm({ onSuccess }: TodoFormProps) {
       await createTodoMutation.mutateAsync({
         title: formData.title.trim(),
         description: formData.description.trim(),
-        completed: false
+        completed: false,
+        user_id: user.id
       });
 
       // Reset form

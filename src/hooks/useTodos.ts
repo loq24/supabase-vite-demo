@@ -42,7 +42,9 @@ async function fetchTodo(id: string): Promise<Todo> {
 
 // Create a new todo
 async function createTodo(
-  todoData: Omit<Todo, "id" | "created_at" | "updated_at">
+  todoData: Omit<Todo, "id" | "created_at" | "updated_at" | "user_id"> & {
+    user_id: string;
+  }
 ): Promise<Todo> {
   const { data, error } = await supabase
     .from("todos")

@@ -21,6 +21,7 @@ export type Database = {
           description: string;
           id: string;
           title: string;
+          user_id: string;
         };
         Insert: {
           completed: boolean;
@@ -28,6 +29,7 @@ export type Database = {
           description: string;
           id?: string;
           title: string;
+          user_id: string;
         };
         Update: {
           completed?: boolean;
@@ -35,6 +37,7 @@ export type Database = {
           description?: string;
           id?: string;
           title?: string;
+          user_id?: string;
         };
         Relationships: [];
       };

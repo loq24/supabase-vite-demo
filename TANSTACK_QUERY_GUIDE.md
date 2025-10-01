@@ -7,21 +7,18 @@ This project now uses TanStack Query (formerly React Query) for efficient data f
 ### Features Added
 
 - **TanStack Query** for data fetching and caching
-- **Custom hooks** for user CRUD operations
+- **Custom hooks** for todo CRUD operations
 - **Error boundary** for better error handling
 - **React Query DevTools** for development
 - **Optimistic updates** and cache management
-- **User form** for creating new users
+- **Todo management** with full CRUD functionality
 
 ## 📁 Project Structure
 
 ```
 src/
-├── hooks/
-│   └── useUsers.ts          # Custom TanStack Query hooks
 ├── components/
 │   ├── ErrorBoundary.tsx    # Global error boundary
-│   └── UserForm.tsx         # Form for adding users
 ├── lib/
 │   └── supabase.ts          # Supabase client and types
 ├── App.tsx                  # Main app component
@@ -51,25 +48,22 @@ const queryClient = new QueryClient({
 });
 ```
 
-### 2. Custom Hooks (`hooks/useUsers.ts`)
+### 2. Custom Hooks (`hooks/useTodos.ts`)
 
 #### Available Hooks:
 
-- `useUsers()` - Fetch all users
-- `useUser(id)` - Fetch single user
-- `useCreateUser()` - Create new user
-- `useUpdateUser()` - Update existing user
-- `useDeleteUser()` - Delete user
+- `useTodos()` - Fetch all todos for authenticated user
+- `useCreateTodo()` - Create new todo
+- `useToggleTodo()` - Toggle todo completion status
+- `useDeleteTodo()` - Delete todo
 
 #### Query Keys Structure:
 
 ```typescript
-export const userKeys = {
-  all: ["users"],
-  lists: () => [...userKeys.all, "list"],
-  list: (filters) => [...userKeys.lists(), { filters }],
-  details: () => [...userKeys.all, "detail"],
-  detail: (id) => [...userKeys.details(), id]
+export const todoKeys = {
+  all: ["todos"],
+  lists: () => [...todoKeys.all, "list"],
+  list: (filters) => [...todoKeys.lists(), { filters }]
 };
 ```
 
@@ -120,45 +114,45 @@ export const userKeys = {
 
 ## 🛠️ Usage Examples
 
-### Fetching Users
+### Fetching Todos
 
 ```typescript
-function UsersList() {
-  const { data: users, isLoading, error, refetch } = useUsers();
+function TodosList() {
+  const { data: todos, isLoading, error, refetch } = useTodos();
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
     <ul>
-      {users?.map((user) => (
-        <li key={user.id}>{user.name}</li>
+      {todos?.map((todo) => (
+        <li key={todo.id}>{todo.title}</li>
       ))}
     </ul>
   );
 }
 ```
 
-### Creating Users
+### Creating Todos
 
 ```typescript
-function CreateUser() {
-  const createUser = useCreateUser();
+function CreateTodo() {
+  const createTodo = useCreateTodo();
 
-  const handleSubmit = async (userData) => {
+  const handleSubmit = async (todoData) => {
     try {
-      await createUser.mutateAsync(userData);
+      await createTodo.mutateAsync(todoData);
       // Cache automatically updated!
     } catch (error) {
-      console.error("Failed to create user:", error);
+      console.error("Failed to create todo:", error);
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
       {/* form fields */}
-      <button type="submit" disabled={createUser.isPending}>
-        {createUser.isPending ? "Creating..." : "Create User"}
+      <button type="submit" disabled={createTodo.isPending}>
+        {createTodo.isPending ? "Creating..." : "Create Todo"}
       </button>
     </form>
   );

@@ -20,6 +20,7 @@ export type Database = {
           created_at: string;
           description: string;
           id: string;
+          image_url: string;
           title: string;
           user_id: string;
         };
@@ -28,6 +29,7 @@ export type Database = {
           created_at?: string;
           description: string;
           id?: string;
+          image_url?: string;
           title: string;
           user_id: string;
         };
@@ -36,32 +38,9 @@ export type Database = {
           created_at?: string;
           description?: string;
           id?: string;
+          image_url?: string;
           title?: string;
           user_id?: string;
-        };
-        Relationships: [];
-      };
-      users: {
-        Row: {
-          age: number | null;
-          created_at: string;
-          email: string;
-          id: string;
-          name: string;
-        };
-        Insert: {
-          age?: number | null;
-          created_at?: string;
-          email: string;
-          id?: string;
-          name: string;
-        };
-        Update: {
-          age?: number | null;
-          created_at?: string;
-          email?: string;
-          id?: string;
-          name?: string;
         };
         Relationships: [];
       };
@@ -208,9 +187,9 @@ export const Constants = {
 } as const;
 
 // Convenience type exports
-export type User = Tables<"users">;
 export type Todo = Tables<"todos">;
-export type UserInsert = TablesInsert<"users">;
 export type TodoInsert = TablesInsert<"todos">;
-export type UserUpdate = TablesUpdate<"users">;
 export type TodoUpdate = TablesUpdate<"todos">;
+export type User = Database["public"]["Tables"]["todos"]["Row"]["user_id"];
+export type UserInsert = { id: string };
+export type UserUpdate = { id: string };

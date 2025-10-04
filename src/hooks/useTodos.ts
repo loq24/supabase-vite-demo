@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase, type Todo } from "../lib/supabase";
+import { useEffect } from "react";
+import { supabase, type Todo, type TodoInsert } from "../lib/supabase";
 
 // Query keys for better organization and type safety
 export const todoKeys = {
@@ -41,14 +42,10 @@ async function fetchTodo(id: string): Promise<Todo> {
 }
 
 // Create a new todo
-async function createTodo(
-  todoData: Omit<Todo, "id" | "created_at" | "updated_at" | "user_id"> & {
-    user_id: string;
-  }
-): Promise<Todo> {
+async function createTodo(todoData: TodoInsert): Promise<Todo> {
   const { data, error } = await supabase
     .from("todos")
-    .insert([todoData])
+    .insert(todoData)
     .select()
     .single();
 
@@ -105,10 +102,57 @@ async function toggleTodo(id: string, completed: boolean): Promise<Todo> {
 
 // Custom hooks
 export function useTodos() {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: todoKeys.lists(),
     queryFn: fetchTodos
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("todos-changes")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "todos" },
+        (payload) => {
+          // Add new todo to cache
+          queryClient.setQueryData(todoKeys.lists(), (old: Todo[] = []) => [
+            payload.new as Todo,
+            ...old
+          ]);
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "todos" },
+        (payload) => {
+          // Update todo in cache
+          queryClient.setQueryData(todoKeys.lists(), (old: Todo[] = []) =>
+            old.map((todo) =>
+              todo.id === payload.new.id ? (payload.new as Todo) : todo
+            )
+          );
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "todos" },
+        (payload) => {
+          // Remove todo from cache
+          queryClient.setQueryData(todoKeys.lists(), (old: Todo[] = []) =>
+            old.filter((todo) => todo.id !== payload.old.id)
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 }
 
 export function useTodo(id: string) {

@@ -120,6 +120,18 @@ export default function TodosPage() {
                   {todo.description && (
                     <p className="todo-description">{todo.description}</p>
                   )}
+                  {todo.image_url && (
+                    <div className="todo-image-container">
+                      <img
+                        src={todo.image_url}
+                        alt={todo.title}
+                        className="todo-image"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </div>
+                  )}
                   <p className="todo-status">
                     Status: {todo.completed ? "Completed" : "Pending"}
                   </p>

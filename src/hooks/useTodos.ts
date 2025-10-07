@@ -12,6 +12,56 @@ export const todoKeys = {
   detail: (id: string) => [...todoKeys.details(), id] as const
 };
 
+// Storage helper functions
+async function uploadTodoImage(file: File, userId: string): Promise<string> {
+  // Generate unique filename with timestamp
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${userId}/${Date.now()}.${fileExt}`;
+
+  const { data, error } = await supabase.storage
+    .from("todos-images")
+    .upload(fileName, file, {
+      cacheControl: "3600",
+      upsert: false
+    });
+
+  if (error) {
+    throw new Error(`Failed to upload image: ${error.message}`);
+  }
+
+  // Get public URL
+  const {
+    data: { publicUrl }
+  } = supabase.storage.from("todos-images").getPublicUrl(data.path);
+
+  return publicUrl;
+}
+
+async function deleteTodoImage(imageUrl: string): Promise<void> {
+  if (!imageUrl) return;
+
+  try {
+    // Extract the path from the URL
+    // URL format: https://{project}.supabase.co/storage/v1/object/public/todos-images/{path}
+    const urlParts = imageUrl.split("/todos-images/");
+    if (urlParts.length < 2) return;
+
+    const filePath = urlParts[1];
+
+    const { error } = await supabase.storage
+      .from("todos-images")
+      .remove([filePath]);
+
+    if (error) {
+      console.error("Failed to delete image:", error.message);
+      // Don't throw error to prevent blocking todo deletion
+    }
+  } catch (error) {
+    console.error("Error deleting image:", error);
+    // Don't throw error to prevent blocking todo deletion
+  }
+}
+
 // Fetch all todos for the current user
 async function fetchTodos(): Promise<Todo[]> {
   const { data, error } = await supabase
@@ -77,10 +127,23 @@ async function updateTodo({
 
 // Delete a todo
 async function deleteTodo(id: string): Promise<void> {
+  // First, fetch the todo to get the image_url
+  const { data: todo } = await supabase
+    .from("todos")
+    .select("image_url")
+    .eq("id", id)
+    .single();
+
+  // Delete the todo
   const { error } = await supabase.from("todos").delete().eq("id", id);
 
   if (error) {
     throw new Error(`Failed to delete todo: ${error.message}`);
+  }
+
+  // Delete the associated image if it exists
+  if (todo?.image_url) {
+    await deleteTodoImage(todo.image_url);
   }
 }
 
@@ -174,6 +237,9 @@ export function useCreateTodo() {
     }
   });
 }
+
+// Export storage helpers for use in components
+export { uploadTodoImage, deleteTodoImage };
 
 export function useUpdateTodo() {
   const queryClient = useQueryClient();

@@ -1,69 +1,179 @@
-# React + TypeScript + Vite
+# Supabase + React + Vite Demo
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern todo application demonstrating Supabase integration with React, TypeScript, and TanStack Query. This project showcases best practices for building a full-stack application with authentication, real-time database operations, and type-safe development.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Authentication**: Email/password authentication with Supabase Auth
+- **Todo Management**: Create, read, update, and delete todos with real-time updates
+- **Type Safety**: Auto-generated TypeScript types from your Supabase schema
+- **State Management**: TanStack Query for efficient server state management
+- **Protected Routes**: Route protection with authentication guards
+- **Modern UI**: Clean, responsive interface with CSS
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Frontend**: React 19 + TypeScript + Vite
+- **Backend**: Supabase (PostgreSQL + Auth)
+- **Data Fetching**: TanStack Query v5
+- **Routing**: React Router v7
+- **Type Generation**: Supabase CLI
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Prerequisites
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- Node.js 18+ and npm
+- A Supabase account and project ([sign up free](https://supabase.com))
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Setup Instructions
+
+### 1. Clone and Install
+
+```bash
+git clone <your-repo-url>
+cd supabase-vite-demo
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Set Up Supabase
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. Create a new project at [supabase.com](https://supabase.com)
+2. In your Supabase dashboard, go to **SQL Editor** and run:
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sql
+-- Create todos table
+create table todos (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  title text not null,
+  description text,
+  completed boolean default false,
+  image_url text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- Enable Row Level Security
+alter table todos enable row level security;
+
+-- Create policies
+create policy "Users can view their own todos"
+  on todos for select
+  using (auth.uid() = user_id);
+
+create policy "Users can create their own todos"
+  on todos for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can update their own todos"
+  on todos for update
+  using (auth.uid() = user_id);
+
+create policy "Users can delete their own todos"
+  on todos for delete
+  using (auth.uid() = user_id);
 ```
+
+### 3. Configure Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+VITE_SUPABASE_URL=your-project-url
+VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+```
+
+Find these values in your Supabase dashboard under **Settings > API**.
+
+### 4. Generate TypeScript Types
+
+Generate type-safe types from your database schema:
+
+```bash
+npm run types:generate
+```
+
+See `TYPE_GENERATION_GUIDE.md` for detailed instructions.
+
+### 5. Run the Application
+
+```bash
+npm run dev
+```
+
+Visit `http://localhost:5173` to see your app!
+
+## Project Structure
+
+```
+src/
+├── components/        # Reusable React components
+│   ├── AuthForm.tsx
+│   ├── ErrorBoundary.tsx
+│   ├── ProtectedRoute.tsx
+│   └── TodoForm.tsx
+├── contexts/          # React context providers
+│   ├── auth-context.ts
+│   └── AuthContext.tsx
+├── hooks/             # Custom React hooks
+│   ├── useAuth.ts     # Authentication mutations
+│   └── useTodos.ts    # Todo CRUD operations
+├── lib/               # Configuration and utilities
+│   └── supabase.ts    # Supabase client setup
+├── pages/             # Page components
+│   ├── LoginPage.tsx
+│   └── TodosPage.tsx
+├── types/             # TypeScript type definitions
+│   └── supabase.ts    # Auto-generated from DB schema
+├── App.tsx            # Main app component with routing
+└── main.tsx           # Application entry point
+```
+
+## Key Concepts
+
+### TanStack Query Integration
+
+This app uses TanStack Query for all server state management:
+
+- Automatic caching and background refetching
+- Optimistic updates for better UX
+- Query invalidation on mutations
+- Loading and error states
+
+### Type-Safe Database Operations
+
+All database operations are fully typed using auto-generated types from your Supabase schema:
+
+```typescript
+import type { Todo, TodoInsert, TodoUpdate } from "./lib/supabase";
+
+// TypeScript knows the exact shape of your data
+const newTodo: TodoInsert = {
+  title: "Learn Supabase",
+  completed: false
+};
+```
+
+### Authentication Flow
+
+- Protected routes redirect unauthenticated users to login
+- Auth state is managed with React Context
+- Automatic session persistence with Supabase
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run types:generate` - Generate TypeScript types from Supabase schema
+
+## Learn More
+
+- [Supabase Documentation](https://supabase.com/docs)
+- [TanStack Query Documentation](https://tanstack.com/query/latest)
+- [React Router Documentation](https://reactrouter.com)
+- [Vite Documentation](https://vite.dev)
+
+## License
+
+MIT

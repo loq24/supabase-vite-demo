@@ -183,6 +183,64 @@
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
+.file-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  background-color: white;
+}
+
+.file-input:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.file-input-help {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0.25rem 0 0 0;
+}
+
+.image-preview-container {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.image-preview {
+  max-height: 200px;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+}
+
+.remove-image-button {
+  padding: 0.5rem 1rem;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+  align-self: flex-start;
+}
+
+.remove-image-button:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.remove-image-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
 .todos-list {
   list-style: none;
   padding: 0;
@@ -291,6 +349,21 @@
   color: #9ca3af;
   margin: 0.25rem 0 0 0;
   padding-left: 2.25rem;
+}
+
+.todo-image-container {
+  margin: 1rem 0 0.5rem 0;
+  padding-left: 2.25rem;
+}
+
+.todo-image {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  display: block;
 }
 
 /* Authentication and Page Styles */

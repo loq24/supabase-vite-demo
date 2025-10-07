@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useCreateTodo } from "../hooks/useTodos";
+import { useState, useRef } from "react";
+import { useCreateTodo, uploadTodoImage } from "../hooks/useTodos";
 import { useAuth } from "../hooks/useAuth";
 
 interface TodoFormProps {
@@ -11,9 +11,54 @@ export default function TodoForm({ onSuccess }: TodoFormProps) {
     title: "",
     description: ""
   });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { user } = useAuth();
   const createTodoMutation = useCreateTodo();
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setUploadError(null);
+
+    if (!file) {
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Please select a valid image file");
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      setUploadError("Image size must be less than 5MB");
+      return;
+    }
+
+    setSelectedImage(file);
+
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    setUploadError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,19 +67,42 @@ export default function TodoForm({ onSuccess }: TodoFormProps) {
       return;
     }
 
+    setUploadError(null);
+    setIsUploading(true);
+
     try {
+      let imageUrl = "";
+
+      // Upload image if selected
+      if (selectedImage) {
+        try {
+          imageUrl = await uploadTodoImage(selectedImage, user.id);
+        } catch (error) {
+          setUploadError(
+            error instanceof Error ? error.message : "Failed to upload image"
+          );
+          setIsUploading(false);
+          return;
+        }
+      }
+
+      // Create todo with image URL
       await createTodoMutation.mutateAsync({
         title: formData.title.trim(),
         description: formData.description.trim(),
         completed: false,
-        user_id: user.id
+        user_id: user.id,
+        image_url: imageUrl
       });
 
       // Reset form
       setFormData({ title: "", description: "" });
+      handleRemoveImage();
       onSuccess?.();
     } catch (error) {
       console.error("Failed to create todo:", error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -76,12 +144,46 @@ export default function TodoForm({ onSuccess }: TodoFormProps) {
           />
         </div>
 
+        <div className="form-group">
+          <label htmlFor="image">Image (optional):</label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            id="image"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="file-input"
+            disabled={isUploading || createTodoMutation.isPending}
+          />
+          <p className="file-input-help">Maximum file size: 5MB</p>
+
+          {imagePreview && (
+            <div className="image-preview-container">
+              <img src={imagePreview} alt="Preview" className="image-preview" />
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="remove-image-button"
+                disabled={isUploading || createTodoMutation.isPending}
+              >
+                Remove Image
+              </button>
+            </div>
+          )}
+
+          {uploadError && <p className="error-message">{uploadError}</p>}
+        </div>
+
         <button
           type="submit"
-          disabled={createTodoMutation.isPending}
+          disabled={createTodoMutation.isPending || isUploading}
           className="submit-button"
         >
-          {createTodoMutation.isPending ? "Adding..." : "Add Todo"}
+          {isUploading
+            ? "Uploading..."
+            : createTodoMutation.isPending
+            ? "Adding..."
+            : "Add Todo"}
         </button>
 
         {createTodoMutation.isError && (

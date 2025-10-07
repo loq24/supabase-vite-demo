@@ -15,85 +15,115 @@ export default function TodosPage() {
 
   if (isLoading) {
     return (
-      <div className="page">
-        <div className="page-header">
-          <h1>Todos</h1>
-          <div className="user-info">
-            <span>Welcome, {user?.email}</span>
-            <button
-              onClick={handleSignOut}
-              disabled={signOutMutation.isPending}
-              className="sign-out-button"
-            >
-              {signOutMutation.isPending ? "Signing out..." : "Sign Out"}
-            </button>
+      <div className="min-h-screen px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-3xl font-light text-gray-900">Todos</h1>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-600">
+                Welcome, {user?.email}
+              </span>
+              <button
+                onClick={handleSignOut}
+                disabled={signOutMutation.isPending}
+                className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition disabled:text-gray-400"
+              >
+                {signOutMutation.isPending ? "Signing out..." : "Sign Out"}
+              </button>
+            </div>
           </div>
+          <p className="text-gray-600">Loading todos...</p>
         </div>
-        <p>Loading todos...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="page">
-        <div className="page-header">
-          <h1>Todos</h1>
-          <div className="user-info">
-            <span>Welcome, {user?.email}</span>
+      <div className="min-h-screen px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-3xl font-light text-gray-900">Todos</h1>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-600">
+                Welcome, {user?.email}
+              </span>
+              <button
+                onClick={handleSignOut}
+                disabled={signOutMutation.isPending}
+                className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition disabled:text-gray-400"
+              >
+                {signOutMutation.isPending ? "Signing out..." : "Sign Out"}
+              </button>
+            </div>
+          </div>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h2 className="text-xl font-medium text-red-900 mb-2">Error</h2>
+            <p className="text-red-800 mb-4">
+              {error?.message || "An unexpected error occurred"}
+            </p>
+            <p className="text-red-800 mb-2">Make sure to:</p>
+            <ul className="list-disc list-inside text-red-800 space-y-1 mb-4">
+              <li>Set up your Supabase project</li>
+              <li>Create the 'todos' table</li>
+              <li>Add your Supabase URL and key to environment variables</li>
+              <li>Enable Row Level Security and add appropriate policies</li>
+            </ul>
             <button
-              onClick={handleSignOut}
-              disabled={signOutMutation.isPending}
-              className="sign-out-button"
+              onClick={() => refetch()}
+              className="px-4 py-2 bg-red-900 text-white rounded-md hover:bg-red-800 transition"
             >
-              {signOutMutation.isPending ? "Signing out..." : "Sign Out"}
+              Retry
             </button>
           </div>
-        </div>
-        <div className="error">
-          <h2>Error</h2>
-          <p>{error?.message || "An unexpected error occurred"}</p>
-          <p>Make sure to:</p>
-          <ul>
-            <li>Set up your Supabase project</li>
-            <li>Create the 'todos' table</li>
-            <li>Add your Supabase URL and key to environment variables</li>
-            <li>Enable Row Level Security and add appropriate policies</li>
-          </ul>
-          <button onClick={() => refetch()}>Retry</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="page">
-      <div className="page-header">
-        <h1>My Todos</h1>
-        <div className="user-info">
-          <span>Welcome, {user?.email}</span>
-          <button
-            onClick={handleSignOut}
-            disabled={signOutMutation.isPending}
-            className="sign-out-button"
-          >
-            {signOutMutation.isPending ? "Signing out..." : "Sign Out"}
-          </button>
+    <div className="min-h-screen px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-light text-gray-900">My Todos</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-600">
+              Welcome, {user?.email}
+            </span>
+            <button
+              onClick={handleSignOut}
+              disabled={signOutMutation.isPending}
+              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition disabled:text-gray-400"
+            >
+              {signOutMutation.isPending ? "Signing out..." : "Sign Out"}
+            </button>
+          </div>
         </div>
-      </div>
 
-      <TodoForm />
+        <TodoForm />
 
-      <div className="card">
-        <h2>Your Todos</h2>
-        {todos.length === 0 ? (
-          <p>No todos found. Add your first todo above!</p>
-        ) : (
-          <ul className="todos-list">
-            {todos.map((todo) => (
-              <li key={todo.id} className="todo-item">
-                <div className="todo-info">
-                  <div className="todo-header">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-light text-gray-900">Your Todos</h2>
+            <button
+              onClick={() => refetch()}
+              className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:border-gray-400 transition"
+            >
+              Refresh
+            </button>
+          </div>
+          {todos.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">
+              No todos found. Add your first todo above!
+            </p>
+          ) : (
+            <ul className="space-y-3">
+              {todos.map((todo) => (
+                <li
+                  key={todo.id}
+                  className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition"
+                >
+                  <div className="flex items-start gap-3">
                     <input
                       type="checkbox"
                       checked={todo.completed}
@@ -104,50 +134,61 @@ export default function TodosPage() {
                         })
                       }
                       disabled={toggleTodoMutation.isPending}
+                      className="mt-1 w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-2 focus:ring-gray-900 cursor-pointer"
                     />
-                    <h3 className={todo.completed ? "completed" : ""}>
-                      {todo.title}
-                    </h3>
+                    <div className="flex-1 min-w-0">
+                      <h3
+                        className={`text-lg font-medium ${
+                          todo.completed
+                            ? "line-through text-gray-400"
+                            : "text-gray-900"
+                        }`}
+                      >
+                        {todo.title}
+                      </h3>
+                      {todo.description && (
+                        <p className="text-gray-600 text-sm mt-1">
+                          {todo.description}
+                        </p>
+                      )}
+                      {todo.image_url && (
+                        <div className="mt-3 rounded-lg overflow-hidden">
+                          <img
+                            src={todo.image_url}
+                            alt={todo.title}
+                            className="max-w-full h-auto max-h-64 object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
+                          />
+                        </div>
+                      )}
+                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                        <span>
+                          Status: {todo.completed ? "Completed" : "Pending"}
+                        </span>
+                        {todo.created_at && (
+                          <span>
+                            Created:{" "}
+                            {new Date(todo.created_at).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                     <button
                       onClick={() => deleteTodoMutation.mutate(todo.id)}
                       disabled={deleteTodoMutation.isPending}
-                      className="delete-button"
+                      className="text-gray-400 hover:text-red-600 transition text-xl leading-none disabled:text-gray-300"
                       aria-label="Delete todo"
                     >
                       ×
                     </button>
                   </div>
-                  {todo.description && (
-                    <p className="todo-description">{todo.description}</p>
-                  )}
-                  {todo.image_url && (
-                    <div className="todo-image-container">
-                      <img
-                        src={todo.image_url}
-                        alt={todo.title}
-                        className="todo-image"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
-                      />
-                    </div>
-                  )}
-                  <p className="todo-status">
-                    Status: {todo.completed ? "Completed" : "Pending"}
-                  </p>
-                  {todo.created_at && (
-                    <p className="todo-date">
-                      Created: {new Date(todo.created_at).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-        <button onClick={() => refetch()} className="refresh-button">
-          Refresh Data
-        </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );

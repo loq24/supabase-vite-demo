@@ -9,12 +9,13 @@ A modern todo application demonstrating Supabase integration with React, TypeScr
 - **Type Safety**: Auto-generated TypeScript types from your Supabase schema
 - **State Management**: TanStack Query for efficient server state management
 - **Protected Routes**: Route protection with authentication guards
-- **Modern UI**: Clean, responsive interface with CSS
+- **Modern UI**: Clean, minimalist interface built with TailwindCSS
 
 ## Tech Stack
 
 - **Frontend**: React 19 + TypeScript + Vite
 - **Backend**: Supabase (PostgreSQL + Auth)
+- **Styling**: TailwindCSS v3
 - **Data Fetching**: TanStack Query v5
 - **Routing**: React Router v7
 - **Type Generation**: Supabase CLI

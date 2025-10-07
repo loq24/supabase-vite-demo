@@ -12,10 +12,13 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (loading) {
     return (
-      <div className="page">
-        <div className="loading-container">
-          <h2>Loading...</h2>
-          <p>Checking authentication status...</p>
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="inline-block w-8 h-8 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin mb-4"></div>
+          <h2 className="text-xl font-light text-gray-900 mb-2">Loading...</h2>
+          <p className="text-gray-600 text-sm">
+            Checking authentication status...
+          </p>
         </div>
       </div>
     );

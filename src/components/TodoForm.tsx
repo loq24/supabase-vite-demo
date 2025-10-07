@@ -116,11 +116,16 @@ export default function TodoForm({ onSuccess }: TodoFormProps) {
   };
 
   return (
-    <div className="todo-form">
-      <h3>Add New Todo</h3>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="title">Title:</label>
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h3 className="text-xl font-light text-gray-900 mb-4">Add New Todo</h3>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label
+            htmlFor="title"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Title
+          </label>
           <input
             type="text"
             id="title"
@@ -129,11 +134,17 @@ export default function TodoForm({ onSuccess }: TodoFormProps) {
             onChange={handleChange}
             placeholder="Enter todo title..."
             required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition"
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="description">Description (optional):</label>
+        <div>
+          <label
+            htmlFor="description"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Description (optional)
+          </label>
           <textarea
             id="description"
             name="description"
@@ -141,29 +152,39 @@ export default function TodoForm({ onSuccess }: TodoFormProps) {
             onChange={handleChange}
             placeholder="Enter todo description..."
             rows={3}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition resize-none"
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="image">Image (optional):</label>
+        <div>
+          <label
+            htmlFor="image"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Image (optional)
+          </label>
           <input
             ref={fileInputRef}
             type="file"
             id="image"
             accept="image/*"
             onChange={handleImageChange}
-            className="file-input"
+            className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-gray-900 file:text-white hover:file:bg-gray-800 file:cursor-pointer cursor-pointer"
             disabled={isUploading || createTodoMutation.isPending}
           />
-          <p className="file-input-help">Maximum file size: 5MB</p>
+          <p className="text-xs text-gray-500 mt-1">Maximum file size: 5MB</p>
 
           {imagePreview && (
-            <div className="image-preview-container">
-              <img src={imagePreview} alt="Preview" className="image-preview" />
+            <div className="mt-3 space-y-2">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-full h-48 object-cover rounded-lg border border-gray-200"
+              />
               <button
                 type="button"
                 onClick={handleRemoveImage}
-                className="remove-image-button"
+                className="w-full px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                 disabled={isUploading || createTodoMutation.isPending}
               >
                 Remove Image
@@ -171,13 +192,15 @@ export default function TodoForm({ onSuccess }: TodoFormProps) {
             </div>
           )}
 
-          {uploadError && <p className="error-message">{uploadError}</p>}
+          {uploadError && (
+            <p className="text-sm text-red-600 mt-2">{uploadError}</p>
+          )}
         </div>
 
         <button
           type="submit"
           disabled={createTodoMutation.isPending || isUploading}
-          className="submit-button"
+          className="w-full bg-gray-900 text-white py-2 px-4 rounded-md hover:bg-gray-800 transition disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
         >
           {isUploading
             ? "Uploading..."
@@ -187,7 +210,7 @@ export default function TodoForm({ onSuccess }: TodoFormProps) {
         </button>
 
         {createTodoMutation.isError && (
-          <p className="error-message">
+          <p className="text-sm text-red-600">
             Error: {createTodoMutation.error?.message}
           </p>
         )}

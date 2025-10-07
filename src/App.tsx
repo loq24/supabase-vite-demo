@@ -8,13 +8,12 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import TodosPage from "./pages/TodosPage";
-import "./App.css";
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="app">
+        <div className="min-h-screen bg-gray-50">
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route
